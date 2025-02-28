@@ -1,0 +1,16 @@
+Here you can find a list of inputs to enter to see the flow of the application. All uppercase letters are not necessary when the user is inputting as it will be automatically parsed to be all uppercase
+
+- Enter player name
+Any name will do just fine, as long as the length does that exceed the message limit, for which is 1024
+
+- MOVE command
+Enter 5 for dx and 5 for dy, this will move you to a valid spot where a pickup is available
+
+- PICKUP command
+Enter 200 for lootID, this will ensure you get a valid pickup request since you are located near one
+
+- STATE command
+No special instructions needed
+
+- QUIT command
+Entering quit will close all sockets and terminal all programs

@@ -1,0 +1,49 @@
+Battle Royale Server started on port 6000
+
+Server: received: 
+From host: /127.0.0.1
+From host port: 60971
+Length: 14
+Containing: JOIN:John Snow
+
+Server: sent: 
+To host: /127.0.0.1
+To host port: 5000
+Length: 10
+Containing: JOINED:100
+
+Server: received: 
+From host: /127.0.0.1
+From host port: 60971
+Length: 12
+Containing: MOVE:100:5:5
+
+Server: sent: 
+To host: /127.0.0.1
+To host port: 5000
+Length: 7
+Containing: MOVE_OK
+
+Server: received: 
+From host: /127.0.0.1
+From host port: 60971
+Length: 14
+Containing: PICKUP:100:200
+
+Server: sent: 
+To host: /127.0.0.1
+To host port: 5000
+Length: 9
+Containing: PICKUP_OK
+
+Server: received: 
+From host: /127.0.0.1
+From host port: 60971
+Length: 5
+Containing: STATE
+
+Server: sent: 
+To host: /127.0.0.1
+To host port: 5000
+Length: 60
+Containing: PLAYERS=[(100,5,5,120,John Snow),];LOOT=[(201,10,2,Ammo,5),]

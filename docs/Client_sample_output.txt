@@ -1,0 +1,63 @@
+Client started. Socket on random port.
+Enter your player name: John Snow
+
+Client: sent: 
+To host: local/127.0.0.1
+To host port: 5000
+Length: 14
+Containing: JOIN:John Snow
+
+Client: received: 
+From host: /127.0.0.1
+From host port: 60971
+Length: 10
+Containing: JOINED:100
+Joined game with playerId = 100
+Commands: MOVE dx dy | PICKUP lootId | STATE | QUIT
+MOVE 5 5
+
+Client: sent: 
+To host: local/127.0.0.1
+To host port: 5000
+Length: 12
+Containing: MOVE:100:5:5
+
+Client: received: 
+From host: /127.0.0.1
+From host port: 60971
+Length: 7
+Containing: MOVE_OK
+Server: MOVE_OK
+Commands: MOVE dx dy | PICKUP lootId | STATE | QUIT
+PICKUP 200
+
+Client: sent: 
+To host: local/127.0.0.1
+To host port: 5000
+Length: 14
+Containing: PICKUP:100:200
+
+Client: received: 
+From host: /127.0.0.1
+From host port: 60971
+Length: 9
+Containing: PICKUP_OK
+Server: PICKUP_OK
+Commands: MOVE dx dy | PICKUP lootId | STATE | QUIT
+STATE
+
+Client: sent: 
+To host: local/127.0.0.1
+To host port: 5000
+Length: 5
+Containing: STATE
+
+Client: received: 
+From host: /127.0.0.1
+From host port: 60971
+Length: 60
+Containing: PLAYERS=[(100,5,5,120,John Snow),];LOOT=[(201,10,2,Ammo,5),]
+Game State: PLAYERS=[(100,5,5,120,John Snow),];LOOT=[(201,10,2,Ammo,5),]
+Commands: MOVE dx dy | PICKUP lootId | STATE | QUIT
+QUIT
+Client closed.
