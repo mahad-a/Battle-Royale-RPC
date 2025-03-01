@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class Client {
+public class Client implements RPCInterface {
     private DatagramPacket sendPacket, receivePacket;
     private DatagramSocket sendReceiveSocket;
     private static final String hostAcknowledgment = "Host: Acknowledged request from Client. Replying";
@@ -206,5 +206,17 @@ public class Client {
         System.out.println("Client started...");
         Client c = new Client(); // make a client instance and start it
         c.startClient();
+    }
+
+    /**
+     * Reusable method to handle Remote Procedure Call (RPC) communication
+     * in a single step instead of manually writing send() and receive()
+     *
+     * @param request the request from client or server
+     * @return the response
+     */
+    @Override
+    public String rpc_send(String request) {
+        return null;
     }
 }

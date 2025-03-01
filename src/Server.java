@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class Server {
+public class Server implements RPCInterface{
     private DatagramPacket sendPacket, receivePacket;
     private DatagramSocket sendReceiveSocket;
     private final GameState gameState = new GameState();
@@ -110,5 +110,17 @@ public class Server {
         System.out.println("Server starting...");
         Server server = new Server();
         server.startServer();
+    }
+
+    /**
+     * Reusable method to handle Remote Procedure Call (RPC) communication
+     * in a single step instead of manually writing send() and receive()
+     *
+     * @param request the request from client or server
+     * @return the response
+     */
+    @Override
+    public String rpc_send(String request) {
+        return null;
     }
 }
