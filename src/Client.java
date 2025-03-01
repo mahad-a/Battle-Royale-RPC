@@ -145,7 +145,7 @@ public class Client implements RPCInterface {
                 System.out.println("Error: Unable to receive acknowledgment from Host. Exiting.");
                 System.exit(1);
             } // received acknowledgment, prepare to receive request
-
+            System.out.println("Client: Received acknowledgement from Host. Waiting for response.");
 
             byte[] inData = new byte[1024];
             receivePacket = new DatagramPacket(inData, inData.length);

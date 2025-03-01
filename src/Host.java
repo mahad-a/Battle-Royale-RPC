@@ -126,15 +126,17 @@ public class Host {
         while (true){
             String hostReceivedClient = receiveFromClient();
             acknowledgeClient();
-            sendToServer(hostReceivedClient);
+            String hostReceivedServer = receiveFromServer();
 
             if (hostReceivedClient.equals("QUIT")) {
                 clientSocket.close();
                 serverSocket.close();
                 System.exit(0);
             }
+            if (hostReceivedServer.equals("REQUEST_DATA") && !hostReceivedClient.isEmpty()) {
+                sendToServer(hostReceivedClient);
+            }
 
-            String hostReceivedServer = receiveFromServer();
             sendToClient(hostReceivedServer);
         }
     }
