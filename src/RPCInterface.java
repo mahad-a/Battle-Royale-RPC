@@ -1,3 +1,6 @@
+/**
+ * Interface for remote procedure calls
+ */
 public interface RPCInterface {
     /**
      * Reusable method to handle Remote Procedure Call (RPC) communication
