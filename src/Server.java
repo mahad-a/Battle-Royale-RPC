@@ -107,6 +107,7 @@ public class Server {
      * @param args args
      */
     public static void main(String[] args) {
+        System.out.println("Server starting...");
         Server server = new Server();
         server.startServer();
     }
