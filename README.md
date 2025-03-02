@@ -7,7 +7,8 @@
 4. [Documentation](#documentation)
     1. [UML class diagram](#uml-class-diagram)
     2. [UML sequence diagram](#uml-sequence-diagram)
-5. [Contact Information](#contact-information)
+5. [Questions](#assignment-questions)
+6. [Contact Information](#contact-information)
 
 ## Overview
 A basic three-part system was built consisting of:
@@ -76,9 +77,16 @@ If a input guide is needed, you can find one [here](docs/test_inputs.txt) that w
 ## Documentation
 Below you can find a UML sequence diagram and a UML class diagram of the system
 ### UML class diagram
-![UML C](docs/uml_class_diagram.png)
+
 ### UML sequence diagram
-![UML S](docs/uml_sequence_diagram.png)
+
+
+## Assignment Questions
+1. Why did I suggest that you use more than one thread for the implementation of the Intermediate
+task?
+
+3. Is it necessary to use synchronized in the intermediate task? Explain.
+
 
 ## Contact Information
 Mahad Ahmed
