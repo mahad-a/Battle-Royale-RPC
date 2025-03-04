@@ -1,0 +1,13 @@
+Battle Royale Server started on port 6000
+
+[Server] Received: JOIN:John Snow from Host(/127.0.0.1:5001)
+[Server] Sent response back to Host: JOINED:100
+
+[Server] Received: MOVE:100:5:5 from Host(/127.0.0.1:5001)
+[Server] Sent response back to Host: MOVE_OK
+
+[Server] Received: PICKUP:100:200 from Host(/127.0.0.1:5001)
+[Server] Sent response back to Host: PICKUP_OK
+
+[Server] Received: STATE from Host(/127.0.0.1:5001)
+[Server] Sent response back to Host: PLAYERS=[(100,5,5,120,John Snow),];LOOT=[(201,10,2,Ammo,5),]

@@ -1,10 +1,13 @@
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 
 public class Host {
     private DatagramPacket clientSendPacket, clientReceivePacket, serverSendPacket, serverReceivePacket;
     private DatagramSocket clientSocket, serverSocket;
-    private static final String clientAcknowledgment = "Host: Acknowledged request from Client. Replying";
+    private InetAddress clientAddress, serverAddress;
+    private int clientPort, serverPort;
+    public static final String clientAcknowledgment = "Host: Acknowledged request from Client. Replying";
 
     /**
      * Host constructor to act as an intermediate host between client and server
@@ -19,14 +22,14 @@ public class Host {
         }
     }
 
-    private void acknowledgeClient() {
+    public void acknowledgeClient() {
         try { // send acknowledgment to client
             byte[] ackBytes = clientAcknowledgment.getBytes();
             DatagramPacket ackPacket = new DatagramPacket(ackBytes, ackBytes.length,
-                    clientReceivePacket.getAddress(), clientReceivePacket.getPort());
+                    clientAddress, clientPort);
             clientSocket.send(ackPacket);
 
-            System.out.println("\nHost: Sent acknowledgment to client.");
+            System.out.println("[Host -> Client] Sent immediate ACCEPT to " + clientAddress);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -37,7 +40,7 @@ public class Host {
         try { // send the processed command to the client on a new datagram packet using UDP
             // use the origin port of the packet received from client earlier to directly contact the client
             clientSendPacket = new DatagramPacket(hostReceivedServer.getBytes(), hostReceivedServer.getBytes().length,
-                    clientReceivePacket.getAddress(), clientReceivePacket.getPort());
+                    clientAddress, clientPort);
             clientSocket.send(clientSendPacket);
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -48,12 +51,7 @@ public class Host {
 
         // showcase what was sent to client
         String hostForwardClient = new String(clientSendPacket.getData(),0,clientSendPacket.getLength());
-
-        System.out.println("\nHost: forwarded:" +
-                "\nTo client: " + clientSendPacket.getAddress() +
-                "\nTo client port: " + clientSendPacket.getPort() +
-                "\nLength: " + clientSendPacket.getLength() +
-                "\nContaining: " + hostForwardClient);
+        System.out.println("[Host -> Client] Forwarded server response to " + clientAddress + ": " + hostForwardClient);
     }
 
     public String receiveFromClient() {
@@ -61,21 +59,36 @@ public class Host {
         clientReceivePacket = new DatagramPacket(data, data.length);
 
         try { // receive initial command from client
-            clientSocket.receive(clientReceivePacket);
+            while (true) {
+                clientSocket.receive(clientReceivePacket);
+
+                clientAddress = clientReceivePacket.getAddress();
+                clientPort = clientReceivePacket.getPort();
+
+                if (clientAddress == null || clientPort == 0) {
+                    System.out.println("ERROR: Received a packet but address/port is missing!");
+                    return null;  // Prevent further processing
+                }
+
+                // showcase what was received from client
+                String hostReceivedClient = new String(data,0,clientReceivePacket.getLength());
+                System.out.println("\n[Host] Got from client: " + hostReceivedClient + " (from " + clientAddress + ")");
+
+                acknowledgeClient();
+
+                if (hostReceivedClient.isEmpty()) {
+                    System.out.println("ERROR: Empty message received! Retrying...");
+                    continue;
+                }
+
+                return hostReceivedClient;
+            }
         } catch(IOException e) {
             e.printStackTrace();
             System.exit(1);
         }
 
-        // showcase what was received from client
-        String hostReceivedClient = new String(data,0,clientReceivePacket.getLength());
-        System.out.println("\nHost: received:" +
-                "\nFrom client: " + clientReceivePacket.getAddress() +
-                "\nFrom client port: " + clientReceivePacket.getPort() +
-                "\nLength: " + clientReceivePacket.getLength() +
-                "\nContaining: " + hostReceivedClient);
-
-        return hostReceivedClient;
+       return null;
     }
 
     public void sendToServer(String hostReceivedClient) {
@@ -90,11 +103,7 @@ public class Host {
 
         // showcase what was sent/forwarded to server
         String hostForwardServer = new String(serverSendPacket.getData(),0,serverSendPacket.getLength());
-        System.out.println("\nHost: forwarded:" +
-                "\nTo server: " + serverSendPacket.getAddress() +
-                "\nTo server port: " + serverSendPacket.getPort() +
-                "\nLength: " + serverSendPacket.getLength() +
-                "\nContaining: " + hostForwardServer);
+
     }
 
     public String receiveFromServer() {
@@ -108,37 +117,23 @@ public class Host {
             System.exit(1);
         }
 
+        serverAddress = serverReceivePacket.getAddress();
+        serverPort = serverReceivePacket.getPort();
+
+        String hostReceiveServer = new String(data,0, serverReceivePacket.getLength());
+
         // showcase what was received from server
-        String hostReceivedServer = new String(data,0,serverReceivePacket.getLength());
+        System.out.println("\n[Host] Got from server: " + hostReceiveServer + " (from " + serverAddress + ")");
 
-        System.out.println("\nHost: received:" +
-                "\nFrom server: " + serverReceivePacket.getAddress() +
-                "\nFrom server port: " + serverReceivePacket.getPort() +
-                "\nLength: " + serverReceivePacket.getLength() +
-                "\nContaining: " + hostReceivedServer);
-
-        return hostReceivedServer;
+        return hostReceiveServer;
     }
 
+    public void startHost() {
+        Thread clientThread = new Thread(new ClientThread(this));
+        Thread serverThread = new Thread(new ServerThread(this));
 
-
-    public void startHost(){
-        while (true){
-            String hostReceivedClient = receiveFromClient();
-            acknowledgeClient();
-            String hostReceivedServer = receiveFromServer();
-
-            if (hostReceivedClient.equals("QUIT")) {
-                clientSocket.close();
-                serverSocket.close();
-                System.exit(0);
-            }
-            if (hostReceivedServer.equals("REQUEST_DATA") && !hostReceivedClient.isEmpty()) {
-                sendToServer(hostReceivedClient);
-            }
-
-            sendToClient(hostReceivedServer);
-        }
+        clientThread.start();
+        serverThread.start();
     }
 
     /**
@@ -146,7 +141,7 @@ public class Host {
      * @param args args
      */
     public static void main(String[] args) {
-        System.out.println("Host started...");
+        System.out.println("Battle Royale Host started on port 5000");
         Host host = new Host();
         host.startHost();
     }

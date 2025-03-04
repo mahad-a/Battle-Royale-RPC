@@ -5,15 +5,19 @@ import java.util.*;
 public class Client implements RPCInterface {
     private DatagramPacket sendPacket, receivePacket;
     private DatagramSocket sendReceiveSocket;
+    private InetAddress serverAddr;
+    private int serverPort;
     private static final String hostAcknowledgment = "Host: Acknowledged request from Client. Replying";
 
     /**
      * Client constructor for the client application
      */
-    public Client(){
+    public Client(String host, int port){
         try {
             sendReceiveSocket = new DatagramSocket(); // start up the socket
-        } catch (SocketException e) {
+            serverAddr = InetAddress.getByName(host);
+            serverPort = port;
+        } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
             System.exit(1);
         }
@@ -55,8 +59,8 @@ public class Client implements RPCInterface {
     private String playerCommand(int playerId){
         // listen for user's commands in terminal
         Scanner s = new Scanner(System.in);
-        System.out.println("Commands: MOVE dx dy | PICKUP lootId | STATE | QUIT");
-        System.out.println("Enter your command: ");
+        System.out.println("\nCommands: MOVE dx dy | PICKUP lootId | STATE | QUIT");
+        System.out.println("\nEnter your command: ");
         String command = s.nextLine().toUpperCase(); // convert to upper case to be processed properly
 
         // parse the command for specific instructions
@@ -82,7 +86,7 @@ public class Client implements RPCInterface {
         // parse the message for the player id assigned by server
         String[] m = received.split(":");
         int playerId = Integer.parseInt(m[1]);
-        System.out.println("Joined game with playerId = " + playerId);
+        System.out.println("\nJoined game with playerId = " + playerId);
         return playerId; // store player id
     }
 
@@ -90,19 +94,27 @@ public class Client implements RPCInterface {
      * Begin client application and establish connection with intermediate host
      */
     public void startClient(){
-        byte[] data = new byte[1024]; // size of the message
         int playerId = enrollPlayer(); // enroll player into the game
 
         while (true){ // infinite loop until user enters 'quit'
             String command = playerCommand(playerId);
-            // switching to rpc
-            String request = rpc_send(command);
-
             // close socket and end process if user wanted to quit
             if (Objects.equals(command, "QUIT")) {
+                System.out.println(command + "\n" + "Client closed.");
                 sendReceiveSocket.close();
                 System.exit(0);
             } // quit request will have been sent to host and server, to which handle their own shutdown
+
+            // switching to rpc
+            String request = rpc_send(command);
+
+            while (request.equals("REQUEST_DATA")) {
+                command = playerCommand(playerId);
+                request = rpc_send(command);
+            }
+
+
+            System.out.println("Server says: " + request);
         }
 
     }
@@ -112,8 +124,8 @@ public class Client implements RPCInterface {
      * @param args args
      */
     public static void main(String[] args) {
-        System.out.println("Client started...");
-        Client c = new Client(); // make a client instance and start it
+        System.out.println("Client started. Socket on random port.");
+        Client c = new Client("localhost", 5000); // make a client instance and start it
         c.startClient();
     }
 
@@ -129,41 +141,32 @@ public class Client implements RPCInterface {
         try {
             byte[] outData = request.getBytes();
             sendPacket = new DatagramPacket(outData, outData.length,
-                    InetAddress.getLocalHost(), 5000);
+                    serverAddr, serverPort);
 
             sendReceiveSocket.send(sendPacket);
             String clientSent = new String(sendPacket.getData(),0,sendPacket.getLength());
 
-            System.out.println("\nClient: sent:" +
-                    "\nTo host: " + sendPacket.getAddress() +
-                    "\nTo host port: " + sendPacket.getPort() +
-                    "\nLength: " + sendPacket.getLength() +
-                    "\nContaining: " + clientSent);
+            System.out.println("[Client -> Host] Sent request: " + clientSent);
 
             // check if acknowledgment is received
             if (!isAcknowledged()) { // not received
                 System.out.println("Error: Unable to receive acknowledgment from Host. Exiting.");
                 System.exit(1);
             } // received acknowledgment, prepare to receive request
-            System.out.println("Client: Received acknowledgement from Host. Waiting for response.");
+            System.out.println("[Client <- Host] Got reply: ACCEPT(" + clientSent + ")");
 
-            byte[] inData = new byte[1024];
+            byte[] inData = new byte[100];
             receivePacket = new DatagramPacket(inData, inData.length);
             sendReceiveSocket.receive(receivePacket);
 
             // showcase what was received from host
             String clientReceived = new String(receivePacket.getData(),0,receivePacket.getLength());
-            System.out.println("\nClient: received:" +
-                    "\nFrom host: " + receivePacket.getAddress() +
-                    "\nFrom host port: " + receivePacket.getPort() +
-                    "\nLength: " + receivePacket.getLength() +
-                    "\nContaining: " + clientReceived);
+            System.out.println("[Server -> Host -> Client] Got reply: " + clientReceived);
 
             return clientReceived;
         } catch (IOException e) {
             e.printStackTrace();
-            System.exit(1);
+            return "ERROR: Client I/O Exception";
         }
-        return null;
     }
 }

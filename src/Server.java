@@ -10,9 +10,9 @@ public class Server implements RPCInterface{
     /**
      * Server constructor for the server application
      */
-    public Server(){
+    public Server(int port){
         try {
-            sendReceiveSocket = new DatagramSocket(6000); // specific port for server
+            sendReceiveSocket = new DatagramSocket(port); // specific port for server
         } catch (SocketException e) {
             e.printStackTrace();
             System.exit(1);
@@ -27,6 +27,10 @@ public class Server implements RPCInterface{
 
         while (true){ // infinite loop until receiving a 'quit' request
             String request = rpc_send(requestHost);
+
+            while (request.equals(requestHost)) {
+
+            }
 
             String response = processRequest(request);
 
@@ -73,8 +77,8 @@ public class Server implements RPCInterface{
      * @param args args
      */
     public static void main(String[] args) {
-        System.out.println("Server starting...");
-        Server server = new Server();
+        System.out.println("Battle Royale Server started on port 6000");
+        Server server = new Server(6000);
         server.startServer();
     }
 
@@ -88,29 +92,25 @@ public class Server implements RPCInterface{
     @Override
     public String rpc_send(String request) {
         try{
-            byte[] outData = request.getBytes();
-            sendPacket = new DatagramPacket(outData, outData.length,
-                    InetAddress.getLocalHost(), 5000);
-
-            sendReceiveSocket.send(sendPacket);
-            String sent = new String(sendPacket.getData(),0,sendPacket.getLength());
-            System.out.println("\nServer: sent:" +
-                    "\nTo host: " + sendPacket.getAddress() +
-                    "\nTo host port: " + sendPacket.getPort() +
-                    "\nLength: " + sendPacket.getLength() +
-                    "\nContaining: " + sent);
-
-            byte[] inData = new byte[1024];
+            byte[] inData = new byte[100];
             receivePacket = new DatagramPacket(inData, inData.length);
+
             sendReceiveSocket.receive(receivePacket);
 
-            String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            System.out.println("\nServer: received:" +
-                    "\nFrom host: " + receivePacket.getAddress() +
-                    "\nFrom host port: " + receivePacket.getPort() +
-                    "\nLength: " + receivePacket.getLength() +
-                    "\nContaining: " + response);
+            InetAddress clientAddr = receivePacket.getAddress();
+            int clientPort = receivePacket.getPort();
+            String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            System.out.println("[Server] Received: " + message + " from Host(" + clientAddr + ")");
 
+            String response = processRequest(message);
+
+            byte[] outData = response.getBytes();
+            DatagramPacket sendPacket = new DatagramPacket(outData, outData.length,
+                    clientAddr, clientPort);
+
+            sendReceiveSocket.send(sendPacket);
+            System.out.println("[Server] Sent response back to Host: " + response);
+            System.out.println();
             return response;
         } catch (IOException e){
             e.printStackTrace();

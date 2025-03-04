@@ -1,0 +1,45 @@
+Client started. Socket on random port.
+Enter your player name: John Snow
+
+
+[Client -> Host] Sent request: JOIN:John Snow
+[Client <- Host] Got reply: ACCEPT(JOIN:John Snow)
+[Server -> Host -> Client] Got reply: JOINED:100
+
+Joined game with playerId = 100
+
+Commands: MOVE dx dy | PICKUP lootId | STATE | QUIT
+
+MOVE 5 5
+
+[Client -> Host] Sent request: MOVE:100:5:5
+[Client <- Host] Got reply: ACCEPT(MOVE:100:5:5)
+[Server -> Host -> Client] Got reply: MOVE_OK
+
+Server says: MOVE_OK
+
+Commands: MOVE dx dy | PICKUP lootId | STATE | QUIT
+
+PICKUP 200
+
+[Client -> Host] Sent request: PICKUP:100:200
+[Client <- Host] Got reply: ACCEPT(PICKUP:100:200)
+[Server -> Host -> Client] Got reply: PICKUP_OK
+
+Server says: PICKUP_OK
+
+Commands: MOVE dx dy | PICKUP lootId | STATE | QUIT
+
+STATE
+
+[Client -> Host] Sent request: STATE
+[Client <- Host] Got reply: ACCEPT(STATE)
+[Server -> Host -> Client] Got reply: PLAYERS=[(100,5,5,120,John Snow),];LOOT=[(201,10,2,Ammo,5),]
+
+Current game state: PLAYERS=[(100,5,5,120,John Snow),];LOOT=[(201,10,2,Ammo,5),]
+
+Commands: MOVE dx dy | PICKUP lootId | STATE | QUIT
+
+QUIT
+
+Client closed.

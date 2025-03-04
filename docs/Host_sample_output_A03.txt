@@ -1,0 +1,29 @@
+Battle Royale Host started on port 5000
+
+[Host] Got from client: JOIN:John Snow (from /127.0.0.1:58596)
+[Host -> Client] Sent immediate ACCEPT to /127.0.0.1:58596
+[Host -> Server] Forwarded request to server: JOIN:John Snow
+
+[Host] Got from server: JOINED:100 (from /127.0.0.1:6000)
+[Host -> Client] Forwarded server response to /127.0.0.1:58596: JOINED:100
+
+[Host] Got from client: MOVE:100:5:5 (from /127.0.0.1:58596)
+[Host -> Client] Sent immediate ACCEPT to /127.0.0.1:58596
+[Host -> Server] Forwarded request to server: MOVE:100:5:5
+
+[Host] Got from server: MOVE_OK (from /127.0.0.1:6000)
+[Host -> Client] Forwarded server response to /127.0.0.1:58596: MOVE_OK
+
+[Host] Got from client: PICKUP:100:200 (from /127.0.0.1:58596)
+[Host -> Client] Sent immediate ACCEPT to /127.0.0.1:58596
+[Host -> Server] Forwarded request to server: PICKUP:100:200
+
+[Host] Got from server: PICKUP_OK (from /127.0.0.1:6000)
+[Host -> Client] Forwarded server response to /127.0.0.1:58596: PICKUP_OK
+
+[Host] Got from client: STATE (from /127.0.0.1:58596)
+[Host -> Client] Sent immediate ACCEPT to /127.0.0.1:58596
+[Host -> Server] Forwarded request to server: STATE
+
+[Host] Got from server: PLAYERS=[(100,5,5,120,John Snow),];LOOT=[(201,10,2,Ammo,5),] (from /127.0.0.1:6000)
+[Host -> Client] Forwarded server response to /127.0.0.1:58596: PLAYERS=[(100,5,5,120,John Snow),];LOOT=[(201,10,2,Ammo,5),]
