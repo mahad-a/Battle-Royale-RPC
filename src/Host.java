@@ -22,6 +22,9 @@ public class Host {
         }
     }
 
+    /**
+     * Sends an acknowledgment to the client
+     */
     public void acknowledgeClient() {
         try { // send acknowledgment to client
             byte[] ackBytes = clientAcknowledgment.getBytes();
@@ -36,6 +39,10 @@ public class Host {
         }
     }
 
+    /**
+     * Sends a datagram packet to the Client using UDP
+     * @param hostReceivedServer the message to send to Client
+     */
     public void sendToClient(String hostReceivedServer) {
         try { // send the processed command to the client on a new datagram packet using UDP
             // use the origin port of the packet received from client earlier to directly contact the client
@@ -54,6 +61,10 @@ public class Host {
         System.out.println("[Host -> Client] Forwarded server response to " + clientAddress + ": " + hostForwardClient);
     }
 
+    /**
+     * Receive a datagram packet from the Client using UDP and extract the message
+     * @return the message from the client
+     */
     public String receiveFromClient() {
         byte[] data = new byte[1024];  // size of the message
         clientReceivePacket = new DatagramPacket(data, data.length);
@@ -62,24 +73,21 @@ public class Host {
             while (true) {
                 clientSocket.receive(clientReceivePacket);
 
+                // save the client address and port
                 clientAddress = clientReceivePacket.getAddress();
                 clientPort = clientReceivePacket.getPort();
 
+                // ensure the packet is valid and not corrupted
                 if (clientAddress == null || clientPort == 0) {
                     System.out.println("ERROR: Received a packet but address/port is missing!");
-                    return null;  // Prevent further processing
+                    return null;  // stop the process of receiving
                 }
 
                 // showcase what was received from client
                 String hostReceivedClient = new String(data,0,clientReceivePacket.getLength());
                 System.out.println("\n[Host] Got from client: " + hostReceivedClient + " (from " + clientAddress + ")");
 
-                acknowledgeClient();
-
-                if (hostReceivedClient.isEmpty()) {
-                    System.out.println("ERROR: Empty message received! Retrying...");
-                    continue;
-                }
+                acknowledgeClient(); // send acknowledgment to the client that message is received
 
                 return hostReceivedClient;
             }
@@ -91,6 +99,10 @@ public class Host {
        return null;
     }
 
+    /**
+     * Sends a datagram packet to the Server using UDP
+     * @param hostReceivedClient the message to send to the Server
+     */
     public void sendToServer(String hostReceivedClient) {
         try { // send client's command to server on a new datagram packet using UDP
             serverSendPacket = new DatagramPacket(hostReceivedClient.getBytes(), hostReceivedClient.getBytes().length,
@@ -106,6 +118,10 @@ public class Host {
 
     }
 
+    /**
+     * Receive a datagram packet from the Server using UDP and extract the message
+     * @return the message from the server
+     */
     public String receiveFromServer() {
         byte[] data = new byte[1024];  // size of the message
         serverReceivePacket = new DatagramPacket(data, data.length);
@@ -117,6 +133,7 @@ public class Host {
             System.exit(1);
         }
 
+        // save the server address and port
         serverAddress = serverReceivePacket.getAddress();
         serverPort = serverReceivePacket.getPort();
 
@@ -128,10 +145,16 @@ public class Host {
         return hostReceiveServer;
     }
 
+    /**
+     * Starts the host and creates two threads to simulate two way communication
+     */
     public void startHost() {
+        // thread from client to server
         Thread clientThread = new Thread(new ClientThread(this));
+        // thread from server to client
         Thread serverThread = new Thread(new ServerThread(this));
 
+        // start threads
         clientThread.start();
         serverThread.start();
     }

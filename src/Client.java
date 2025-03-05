@@ -41,10 +41,11 @@ public class Client implements RPCInterface {
         byte[] data = new byte[1024];
         receivePacket = new DatagramPacket(data, data.length);
 
+        // try to get the acknowledgment message from the host
         try {
             sendReceiveSocket.receive(receivePacket);
             String acknowledgement = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            return acknowledgement.equals(hostAcknowledgment);
+            return acknowledgement.equals(hostAcknowledgment); // return boolean
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -80,7 +81,7 @@ public class Client implements RPCInterface {
      */
     public int enrollPlayer(){
         String playerName = "JOIN:" + promptUsername(); // user inputs their desired username
-        // switching to rpc_send
+        // send the enrollment request to server
         String received = rpc_send(playerName);
         
         // parse the message for the player id assigned by server
@@ -105,15 +106,10 @@ public class Client implements RPCInterface {
                 System.exit(0);
             } // quit request will have been sent to host and server, to which handle their own shutdown
 
-            // switching to rpc
+            // send the request to the server
             String request = rpc_send(command);
 
-            while (request.equals("REQUEST_DATA")) {
-                command = playerCommand(playerId);
-                request = rpc_send(command);
-            }
-
-
+            // what the server responded with
             System.out.println("Server says: " + request);
         }
 
@@ -139,6 +135,7 @@ public class Client implements RPCInterface {
     @Override
     public String rpc_send(String request) {
         try {
+            // prepare the send packet to send to the client
             byte[] outData = request.getBytes();
             sendPacket = new DatagramPacket(outData, outData.length,
                     serverAddr, serverPort);
@@ -155,6 +152,7 @@ public class Client implements RPCInterface {
             } // received acknowledgment, prepare to receive request
             System.out.println("[Client <- Host] Got reply: ACCEPT(" + clientSent + ")");
 
+            // prepare the packet to receive the response from the server to prior request
             byte[] inData = new byte[100];
             receivePacket = new DatagramPacket(inData, inData.length);
             sendReceiveSocket.receive(receivePacket);

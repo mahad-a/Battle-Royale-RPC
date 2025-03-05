@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class Server implements RPCInterface{
+public class Server implements RPCInterface {
     private DatagramPacket sendPacket, receivePacket;
     private DatagramSocket sendReceiveSocket;
     private final GameState gameState = new GameState();
@@ -26,21 +26,15 @@ public class Server implements RPCInterface{
     public void startServer(){
 
         while (true){ // infinite loop until receiving a 'quit' request
-            String request = rpc_send(requestHost);
-
-            while (request.equals(requestHost)) {
-
-            }
-
-            String response = processRequest(request);
+            String response = rpc_send(requestHost); // get the request from the host
 
             // close socket and terminal process if client requested to quit
-            if (request.equals("QUIT")){
+            if (response.equals("QUIT")){
                 sendReceiveSocket.close();
                 System.exit(0);
             }
 
-            rpc_send(response);
+            rpc_send(response); // send the response back to the host
         }
     }
 
@@ -67,7 +61,7 @@ public class Server implements RPCInterface{
             }
             case "STATE" -> gameState.serialize();
             // otherwise client inputted a command that doesn't exist
-            case requestHost -> requestHost;
+            case requestHost -> requestHost; // request for data, don't do anything
             default -> "NOT_A_COMMAND"; // INVALID_COMMAND also works here
         };
     }
@@ -92,31 +86,34 @@ public class Server implements RPCInterface{
     @Override
     public String rpc_send(String request) {
         try{
+            // prepare receive packet and receive the message from the client
             byte[] inData = new byte[100];
             receivePacket = new DatagramPacket(inData, inData.length);
 
             sendReceiveSocket.receive(receivePacket);
 
+            // save the values of the client address and port
             InetAddress clientAddr = receivePacket.getAddress();
             int clientPort = receivePacket.getPort();
-            String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            System.out.println("[Server] Received: " + message + " from Host(" + clientAddr + ")");
 
+            // get the message of the request from the host
+            String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            System.out.println("\n[Server] Received: " + message + " from Host(" + clientAddr + ")");
+
+            // process the request
             String response = processRequest(message);
 
+            // send the response using the saved values for client address and client port
             byte[] outData = response.getBytes();
             DatagramPacket sendPacket = new DatagramPacket(outData, outData.length,
                     clientAddr, clientPort);
 
             sendReceiveSocket.send(sendPacket);
             System.out.println("[Server] Sent response back to Host: " + response);
-            System.out.println();
             return response;
         } catch (IOException e){
             e.printStackTrace();
-            System.exit(1);
+            return "ERROR: Client I/O Exception";
         }
-
-        return null;
     }
 }
