@@ -1,4 +1,4 @@
-# Battle Royale UDP System
+# Battle Royale RPC System
 
 ## Table of Contents
 1. [Overview](#overview)
