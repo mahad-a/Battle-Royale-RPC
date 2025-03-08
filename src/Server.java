@@ -6,6 +6,7 @@ public class Server implements RPCInterface {
     private DatagramSocket sendReceiveSocket;
     private final GameState gameState = new GameState();
     private static final String requestHost = "REQUEST_DATA";
+    public static final String hostAcknowledgment = "[Host] Acknowledgment";
 
     /**
      * Server constructor for the server application
@@ -35,6 +36,25 @@ public class Server implements RPCInterface {
             }
 
             rpc_send(response); // send the response back to the host
+        }
+    }
+
+    /**
+     * Check if the Host acknowledged the Server's request
+     * @return if host acknowledged or not
+     */
+    private boolean isAcknowledged() {
+        byte[] data = new byte[1024];
+        receivePacket = new DatagramPacket(data, data.length);
+
+        // try to get the acknowledgment message from the host
+        try {
+            sendReceiveSocket.receive(receivePacket);
+            String acknowledgement = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            return acknowledgement.equals(hostAcknowledgment); // return boolean
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -110,6 +130,15 @@ public class Server implements RPCInterface {
 
             sendReceiveSocket.send(sendPacket);
             System.out.println("[Server] Sent response back to Host: " + response);
+
+            // check if acknowledgment is received
+            if (!isAcknowledged()) { // not received
+                System.out.println("Error: Unable to receive acknowledgment from Host. Exiting.");
+                System.exit(1);
+            } // received acknowledgment, prepare to receive request
+            System.out.println("[Server <- Host] Got reply: ACCEPT(" + response + ")");
+
+
             return response;
         } catch (IOException e){
             e.printStackTrace();

@@ -7,7 +7,7 @@ public class Client implements RPCInterface {
     private DatagramSocket sendReceiveSocket;
     private InetAddress serverAddr;
     private int serverPort;
-    private static final String hostAcknowledgment = "Host: Acknowledged request from Client. Replying";
+    private static final String hostAcknowledgment = "[Host] Acknowledgment";
 
     /**
      * Client constructor for the client application

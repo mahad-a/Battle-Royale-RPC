@@ -6,7 +6,7 @@ public class Host {
     private DatagramSocket clientSocket, serverSocket;
     private InetAddress clientAddress, serverAddress;
     private int clientPort, serverPort;
-    public static final String clientAcknowledgment = "Host: Acknowledged request from Client. Replying";
+    public static final String acknowledgment = "[Host] Acknowledgment";
 
     /**
      * Host constructor to act as an intermediate host between client and server
@@ -22,16 +22,18 @@ public class Host {
     }
 
     /**
-     * Sends an acknowledgment to the client
+     * Sends an acknowledgment to either the client or the server
+     * @param address address of the client or server
+     * @param port the port of the client or server
+     * @param socket the socket for the client or server
      */
-    public void acknowledgeClient() {
+    public void acknowledge(InetAddress address, int port, DatagramSocket socket) {
         try { // send acknowledgment to client
-            byte[] ackBytes = clientAcknowledgment.getBytes();
+            byte[] ackBytes = acknowledgment.getBytes();
             DatagramPacket ackPacket = new DatagramPacket(ackBytes, ackBytes.length,
-                    clientAddress, clientPort);
-            clientSocket.send(ackPacket);
+                    address, port);
+            socket.send(ackPacket);
 
-            System.out.println("[Host -> Client] Sent immediate ACCEPT to " + clientAddress);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -86,7 +88,8 @@ public class Host {
                 String hostReceivedClient = new String(data,0,clientReceivePacket.getLength());
                 System.out.println("\n[Host] Got from client: " + hostReceivedClient + " (from " + clientAddress + ")");
 
-                acknowledgeClient(); // send acknowledgment to the client that message is received
+                acknowledge(clientAddress, clientPort, clientSocket); // send acknowledgment to the client that message is received
+                System.out.println("[Host -> Client] Sent immediate ACCEPT to " + clientAddress);
 
                 return hostReceivedClient;
             }
@@ -140,6 +143,9 @@ public class Host {
 
         // showcase what was received from server
         System.out.println("\n[Host] Got from server: " + hostReceiveServer + " (from " + serverAddress + ")");
+
+        acknowledge(serverAddress, serverPort, serverSocket); // send acknowledgment to the client that message is received
+        System.out.println("[Host -> Server] Sent immediate ACCEPT to " + serverAddress);
 
         return hostReceiveServer;
     }

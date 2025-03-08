@@ -19,7 +19,7 @@ public class ClientThread implements Runnable {
             String clientMessage = host.receiveFromClient();
             if (!clientMessage.isEmpty() && !clientMessage.equals("REQUEST_DATA")) {
                 // ensure the message is not empty and is not the server request for data
-                if (!clientMessage.equals(Host.clientAcknowledgment)) { // ensure message is not the acknowledgment
+                if (!clientMessage.equals(Host.acknowledgment)) { // ensure message is not the acknowledgment
                     // send the message to the server
                     host.sendToServer(clientMessage);
                     System.out.println("[Host -> Server] Forwarded request to server: " + clientMessage);
